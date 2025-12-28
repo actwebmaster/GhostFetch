@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+venv/
+env/
+ENV/
+
+# Build outputs
+dist/
+build/
+*.pyc
+__pycache__/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Playwright
+.playwright/
+
+# Test coverage
+coverage/
