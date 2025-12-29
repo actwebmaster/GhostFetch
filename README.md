@@ -1,8 +1,8 @@
-# 🌐 Scrapecon
+# 👻 GhostFetch
 
 **Die ultimative Web-Scraping-Lösung für Developers**
 
-Scrapecon konvertiert Webinhalte (Blogs, Docs, Notion-Seiten) in sauberes Markdown oder JSON. Mit Stealth-Technologie und Premium UI.
+GhostFetch konvertiert Webinhalte (Blogs, Docs, Notion-Seiten) in sauberes Markdown oder JSON. Mit Stealth-Technologie und Premium UI.
 
 ## ✨ Features
 

@@ -8,7 +8,7 @@ from crawl4ai import AsyncWebCrawler
 from utils import clean_markdown
 
 app = FastAPI(
-    title="Scrapecon API",
+    title="GhostFetch API",
     description="Web Scraping API mit Stealth Mode",
     version="1.0.0"
 )
@@ -45,7 +45,7 @@ async def root():
     """Health Check"""
     return {
         "status": "online",
-        "service": "Scrapecon API",
+        "service": "GhostFetch API",
         "version": "1.0.0"
     }
 

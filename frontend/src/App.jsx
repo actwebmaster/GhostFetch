@@ -64,7 +64,7 @@ function App() {
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
             <Globe className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-4xl font-bold gradient-text">Scrapecon</h1>
+          <h1 className="text-4xl font-bold gradient-text">GhostFetch</h1>
         </div>
         <p className="text-slate-400 text-lg">
           Webinhalte in sauberes Markdown konvertieren. Schnell. Zuverlässig. Stealth.
@@ -217,7 +217,7 @@ function App() {
 
       {/* Footer */}
       <footer className="max-w-6xl mx-auto mt-16 text-center text-slate-500 text-sm">
-        Scrapecon v1.0 • Made with ❤️ for Developers
+        GhostFetch v1.0 • Made with ❤️ for Developers
       </footer>
     </div>
   )

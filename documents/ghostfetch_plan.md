@@ -1,9 +1,9 @@
-# Product Requirements Document (PRD): Scrapecon
+# Product Requirements Document (PRD): GhostFetch
 **Version:** 1.0  
 **Datum:** 29.12.2025  
 **Status:** Draft
 ## 1. Executive Summary
-**Scrapecon** ist eine eigenständige Scraping-Anwendung, die Webinhalte (Blogs, Dokumentationen, Notion-Seiten) in sauberes Markdown oder JSON konvertiert. Die App kombiniert moderne Stealth-Crawler-Technologie mit einer benutzerfreundlichen Oberfläche.
+**GhostFetch** ist eine eigenständige Scraping-Anwendung, die Webinhalte (Blogs, Dokumentationen, Notion-Seiten) in sauberes Markdown oder JSON konvertiert. Die App kombiniert moderne Stealth-Crawler-Technologie mit einer benutzerfreundlichen Oberfläche.
 **Vision:** Das beste Tool für Developer und Content-Teams, um Web-Inhalte schnell und zuverlässig zu extrahieren.
 ## 2. Core Features
 ### 2.1. Single Page Scrape
@@ -39,7 +39,7 @@
 ### Phase 1: MVP
 - [x] Projekt-Setup (Backend + Frontend)
 - [x] Basic UI mit URL-Input und Ergebnisanzeige
-- [ ] Single Page Scrape Endpoint (Integration mit Crawl4AI)
+- [x] Single Page Scrape Endpoint (Integration mit Crawl4AI)
 ### Phase 2: Enhancement
 - [ ] Deep Crawl mit Fortschrittsanzeige
 - [ ] History und Job-Management
