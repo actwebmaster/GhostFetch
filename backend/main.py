@@ -1,17 +1,28 @@
-from fastapi import FastAPI, HTTPException
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 from typing import Optional, List
 import uvicorn
+import uuid
 import asyncio
 from crawl4ai import AsyncWebCrawler
 from utils import clean_markdown
+
+# Database & Crawler Service
+from database import init_db, create_job, get_job, get_all_jobs, get_job_pages, get_settings, update_setting
+from crawler_service import process_crawl_job
 
 app = FastAPI(
     title="GhostFetch API",
     description="Web Scraping API mit Stealth Mode",
     version="1.0.0"
 )
+
+# Initialize Database on Startup
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 # CORS Middleware für Frontend-Kommunikation
 app.add_middleware(
@@ -31,6 +42,11 @@ class CrawlRequest(BaseModel):
     url: HttpUrl
     max_depth: Optional[int] = 2
     output_format: Optional[str] = "markdown"
+
+class SettingsRequest(BaseModel):
+    crawl_delay: Optional[float] = None
+    default_format: Optional[str] = None
+    theme_accent: Optional[str] = None
 
 # Response Models
 class ScrapeResponse(BaseModel):
@@ -87,15 +103,23 @@ async def scrape_url(request: ScrapeRequest):
 
 
 @app.post("/crawl")
-async def crawl_domain(request: CrawlRequest):
+async def crawl_domain(request: CrawlRequest, background_tasks: BackgroundTasks):
     """
-    Startet einen Deep Crawl für eine Domain (Placeholder)
+    Startet einen Deep Crawl für eine Domain im Hintergrund
     """
-    # TODO: Implementierung mit Crawl4AI + Job Queue
+    job_id = str(uuid.uuid4())
+    url_str = str(request.url)
+    
+    # 1. Job in DB erstellen
+    create_job(job_id, url_str, request.max_depth)
+    
+    # 2. Background Task starten
+    background_tasks.add_task(process_crawl_job, job_id, url_str, request.max_depth)
+    
     return {
-        "job_id": "placeholder-123",
+        "job_id": job_id,
         "status": "started",
-        "url": str(request.url),
+        "url": url_str,
         "max_depth": request.max_depth
     }
 
@@ -104,24 +128,61 @@ async def get_job_status(job_id: str):
     """
     Gibt den Status eines laufenden Crawl-Jobs zurück
     """
-    # TODO: Job-Status aus DB abrufen
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    return {
+        "job_id": job['id'],
+        "status": job['status'],
+        "pages_scraped": job['pages_scraped'],
+        "total_pages_found": job['total_pages_found'],
+        "created_at": job['created_at']
+    }
+
+@app.get("/job/{job_id}/results")
+async def get_job_results(job_id: str):
+    """
+    Gibt die Ergebnisse (Seiten) eines Jobs zurück
+    """
+    pages = get_job_pages(job_id)
     return {
         "job_id": job_id,
-        "status": "running",
-        "progress": 0,
-        "pages_scraped": 0
+        "count": len(pages),
+        "pages": pages
     }
 
 @app.get("/history")
 async def get_history():
     """
-    Liste aller vergangenen Scrape-Operationen
+    Liste aller vergangenen Scrape-Operationen (Jobs)
     """
-    # TODO: Aus SQLite DB laden
+    jobs = get_all_jobs()
     return {
-        "total": 0,
-        "items": []
+        "total": len(jobs),
+        "items": jobs
     }
+
+@app.get("/settings")
+async def get_app_settings():
+    """
+    Ruft die aktuellen Einstellungen ab
+    """
+    return get_settings()
+
+@app.post("/settings")
+async def update_app_settings(settings: SettingsRequest):
+    """
+    Aktualisiert die Einstellungen
+    """
+    if settings.crawl_delay is not None:
+        update_setting("crawl_delay", str(settings.crawl_delay))
+    if settings.default_format is not None:
+        update_setting("default_format", settings.default_format)
+    if settings.theme_accent is not None:
+        update_setting("theme_accent", settings.theme_accent)
+    
+    return get_settings()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
