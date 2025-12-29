@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Globe, Zap, Download, Copy, Check, Loader2 } from 'lucide-react'
+import { Globe, Zap, Download, Copy, Check, Loader2, AlertCircle } from 'lucide-react'
+import axios from 'axios'
 import './index.css'
 
 function App() {
@@ -7,20 +8,32 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleScrape = async () => {
     if (!url) return
 
     setLoading(true)
-    // TODO: API Call implementieren
-    setTimeout(() => {
-      setResult({
-        content: "# Beispiel Markdown\n\nDies ist ein **Beispiel-Scraping-Ergebnis**.\n\n- Feature 1\n- Feature 2\n- Feature 3",
+    setError(null)
+    setResult(null)
+
+    try {
+      const response = await axios.post('http://localhost:8000/scrape', {
         url: url,
-        format: 'markdown'
+        output_format: 'markdown'
       })
+
+      if (response.data.success) {
+        setResult(response.data)
+      } else {
+        setError('Scraping war nicht erfolgreich.')
+      }
+    } catch (err) {
+      console.error(err)
+      setError(err.response?.data?.detail || 'Fehler beim Verbinden zum Server.')
+    } finally {
       setLoading(false)
-    }, 2000)
+    }
   }
 
   const handleCopy = () => {
@@ -29,6 +42,18 @@ function App() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  const handleDownload = () => {
+    if (!result?.content) return
+
+    const blob = new Blob([result.content], { type: 'text/markdown' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `scrape_result_${new Date().getTime()}.md`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -86,6 +111,13 @@ function App() {
               )}
             </button>
           </div>
+
+          {error && (
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 flex items-center gap-2 animate-fade-in">
+              <AlertCircle className="w-5 h-5" />
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Results Section */}
@@ -95,7 +127,17 @@ function App() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-slate-100 mb-1">Ergebnis</h2>
-                <p className="text-slate-400 text-sm truncate max-w-md">{result.url}</p>
+                <div className="flex items-center gap-4 text-slate-400 text-sm">
+                  <p className="truncate max-w-md">{result.url}</p>
+                  {result.metadata && (
+                    <>
+                      <span>•</span>
+                      <span>{result.metadata.links_count} Links</span>
+                      <span>•</span>
+                      <span>{result.metadata.media_count} Bilder</span>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="flex gap-3">
                 <button
@@ -116,6 +158,7 @@ function App() {
                   )}
                 </button>
                 <button
+                  onClick={handleDownload}
                   className="px-4 py-2 glass glass-hover rounded-lg 
                            flex items-center gap-2 text-sm font-medium"
                 >
@@ -135,7 +178,7 @@ function App() {
         )}
 
         {/* Features Grid */}
-        {!result && (
+        {!result && !loading && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             {[
               {
