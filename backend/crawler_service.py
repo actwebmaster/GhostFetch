@@ -4,7 +4,7 @@ from typing import Set, List
 from urllib.parse import urlparse, urljoin
 from crawl4ai import AsyncWebCrawler, BrowserConfig
 from database import update_job_status, add_page, get_job, get_settings
-from utils import clean_markdown
+from utils import clean_markdown, CustomBrowserConfig
 import logging
 
 # Logger Setup
@@ -27,7 +27,7 @@ async def process_crawl_job(job_id: str, start_url: str, max_depth: int):
     
     # Crawler Instanz
     # Verwende verbose=False um Logs sauber zu halten
-    browser_cfg = BrowserConfig(browser_type="chromium", headless=True, chrome_channel=None)
+    browser_cfg = CustomBrowserConfig(browser_type="chromium", headless=True, chrome_channel=None)
     async with AsyncWebCrawler(config=browser_cfg, verbose=True) as crawler:
         while queue:
             # Check for job cancellation (optional implementation)

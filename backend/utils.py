@@ -28,3 +28,15 @@ def extract_metadata(result: object) -> dict:
         "description": getattr(result, "description", ""),
         "keywords": getattr(result, "keywords", ""),
     }
+
+from crawl4ai import BrowserConfig
+
+class CustomBrowserConfig(BrowserConfig):
+    """
+    Workaround für Crawl4AI v0.4.24 Bug, der chrome_channel='chrome' erzwingt
+    wenn browser_type='chromium'.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.browser_type == "chromium" and kwargs.get("chrome_channel") is None:
+            self.chrome_channel = None
