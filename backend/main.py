@@ -6,7 +6,7 @@ from typing import Optional, List
 import uvicorn
 import uuid
 import asyncio
-from crawl4ai import AsyncWebCrawler
+from crawl4ai import AsyncWebCrawler, BrowserConfig
 from utils import clean_markdown
 
 # Database & Crawler Service
@@ -74,7 +74,8 @@ async def scrape_url(request: ScrapeRequest):
     print(f"Starting scrape for: {url_str}")
     
     try:
-        async with AsyncWebCrawler(verbose=True) as crawler:
+        browser_cfg = BrowserConfig(browser_type="chromium", headless=True, chrome_channel=None)
+        async with AsyncWebCrawler(config=browser_cfg, verbose=True) as crawler:
             result = await crawler.arun(url=url_str)
             
             if not result.markdown:

@@ -2,7 +2,7 @@
 import asyncio
 from typing import Set, List
 from urllib.parse import urlparse, urljoin
-from crawl4ai import AsyncWebCrawler
+from crawl4ai import AsyncWebCrawler, BrowserConfig
 from database import update_job_status, add_page, get_job, get_settings
 from utils import clean_markdown
 import logging
@@ -27,7 +27,8 @@ async def process_crawl_job(job_id: str, start_url: str, max_depth: int):
     
     # Crawler Instanz
     # Verwende verbose=False um Logs sauber zu halten
-    async with AsyncWebCrawler(verbose=True) as crawler:
+    browser_cfg = BrowserConfig(browser_type="chromium", headless=True, chrome_channel=None)
+    async with AsyncWebCrawler(config=browser_cfg, verbose=True) as crawler:
         while queue:
             # Check for job cancellation (optional implementation)
             job = get_job(job_id)
